@@ -33,6 +33,18 @@ def rust_get_package_versions(package_name: str) -> list[str]:
     return list(reversed([version['num'] for version in resp['versions']]))
 
 
+def golang_get_package_versions(package_name: str) -> list[str]:
+    cmd = ('go', 'list', '-m', '-versions', '-json', package_name)
+    output = json.loads(subprocess.check_output(cmd))
+    return [version.lstrip('v') for version in output['Versions']]
+
+
+def golang_get_additional_dependencies(
+        package_name: str, package_version: str,
+) -> list[str]:
+    return [f'{package_name}@v{package_version}']
+
+
 def node_get_additional_dependencies(
         package_name: str, package_version: str,
 ) -> list[str]:
@@ -50,9 +62,11 @@ LIST_VERSIONS = {
     'python': python_get_package_versions,
     'ruby': ruby_get_package_versions,
     'rust': rust_get_package_versions,
+    'golang': golang_get_package_versions,
 }
 
 ADDITIONAL_DEPENDENCIES = {
     'node': node_get_additional_dependencies,
     'rust': rust_get_additional_dependencies,
+    'golang': golang_get_additional_dependencies,
 }
